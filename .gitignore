@@ -1,8 +1,12 @@
 .env
 long_memory.json
+state.json
 all_state.json
 user_fixed_profile.json
 user_profile.json
 yuki_personality.json
 .DS_Store
 Yuki_ai/
+設計図/
+requirements.txt
+prompts/
