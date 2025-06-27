@@ -8,6 +8,13 @@ ALL_STATE_PATH = "all_state.json"
 LONG_MEMORY_PATH = "long_memory.json"
 USER_PROFILE_PATH = "user_profile.json"
 
+# ディレクトリ設定
+today_str = datetime.now().strftime("%Y-%m-%d")
+base_dir = "days_log"
+filename = f"episode_{today_str}.json"
+DAY_STATE_PATH = os.path.join(base_dir, filename)
+
+
 load_dotenv()
 
 #読み込み
@@ -23,15 +30,18 @@ def save_state(state):
     with open(STATE_PATH, "w", encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False, indent=2)
 
-import json
-import os
 
-ALL_STATE_PATH = "all_state.json"
 
-def all_save_state(entry, path=ALL_STATE_PATH):
+
+def day_save_state(entry, path=DAY_STATE_PATH):
+
     # entry は {"role": "user", "content": "..."} の形式を想定
     if not isinstance(entry, dict) or "role" not in entry or "content" not in entry:
         return
+
+    # timestamp を追加（"HH:MM:SS" の形式）
+    if "timestamp" not in entry:
+        entry["timestamp"] = datetime.now().strftime("%H:%M:%S")
 
     # 既存データの読み込み（あれば）
     if os.path.exists(path):
@@ -53,9 +63,6 @@ def all_save_state(entry, path=ALL_STATE_PATH):
         json.dump(history, f, ensure_ascii=False, indent=2)
 
 
-
-
-
 def add_to_memory(state, role, content):
     entry = {"role": role, "content": content}
     state.setdefault("memory", [])
@@ -65,7 +72,7 @@ def add_to_memory(state, role, content):
         state["memory"] = state["memory"][-20:]
 
     # ✅ 1件ずつファイルに追記保存
-    all_save_state(entry)
+    day_save_state(entry)
 
 
 #dict型の再起的マージ

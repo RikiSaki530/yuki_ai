@@ -19,6 +19,7 @@ def build_time_prompt():
     now = datetime.now()
     return f"現在の日時は {now.strftime('%Y年%m月%d日')} です。"
 
+
 # 日ごとの状態を保存する関数
 def create_daily_json_file(base_dir="days_log"):
     # 今日の日付を取得（例：2025-06-25）
