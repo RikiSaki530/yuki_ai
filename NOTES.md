@@ -6,7 +6,8 @@ ai_yuki/
 ├── state.json                  # 短期記憶（直近の会話）
 ├── long_memory.json            # 長期記憶（名前・好み・関係など）曖昧でもいい 会話する際の大事なことだけを覚えておいてほしいかな
 ├── user_profile.json           # Snowflake風プロファイル（高精度・定期更新）相手の詳細を調べる ここはデータベースになるのかな？
-├── user_fixed_profile.json    #userの名前や年齢など覚えておいてほしいかつ絶対に忘れないでほしい情報はこっち
+├── user_fixed_profile.json     #userの名前や年齢など覚えておいてほしいかつ絶対に忘れないでほしい情報はこっち
+├── episode_memory.json         #エピソード記憶を保存
 |
 ├── ai_backends/                # LLMを切り替えられるようにする層
 │   ├── __init__.py
@@ -16,6 +17,7 @@ ai_yuki/
 |
 ├── utils/
 │   ├── memory.py               # 会話の保存・読み込み・追記処理 記憶の関数処理
+│   ├── epusode_memory_summarizer.py    #一日一回自動で記憶を整理する感じ。エピソード記憶
 │   └── text_tools.py           # normalizeなどの文字列ユーティリティ
 |
 ├── prompts/
@@ -26,7 +28,8 @@ ai_yuki/
 └── requirements.txt            # 依存ライブラリ
 └── README.md                   # このファイル ローカルかつ整理したい情報を載せる
 └── yuki.md                     #目標や現在の状況,今後の進展などはこっち
-└── 設計図                       # PDF/Xmind等が入っている
+└── 設計図/                      # PDF/Xmind等が入っている
+└── Yuki_ai/                    #Uniteyのデータが入っている。 
 
 #人間の記憶構造
 記憶
