@@ -75,6 +75,7 @@ def add_to_memory(state, role, content):
     day_save_state(entry)
 
 
+
 #dict型の再起的マージ
 def recursive_merge_dict(a, b):
     for key, value in b.items():
