@@ -2,6 +2,8 @@
 long_memory.json
 state.json
 all_state.json
+days_log/
+episode_memory.json
 user_fixed_profile.json
 user_profile.json
 yuki_personality.json
