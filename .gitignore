@@ -9,3 +9,4 @@ Yuki_ai/
 設計図/
 requirements.txt
 prompts/
+__pycache__/
