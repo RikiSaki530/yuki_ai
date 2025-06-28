@@ -31,7 +31,6 @@ def save_state(state):
 
 
 
-
 def day_save_state(entry, path=DAY_STATE_PATH):
 
     # entry は {"role": "user", "content": "..."} の形式を想定
