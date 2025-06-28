@@ -13,7 +13,7 @@ ai_yuki/
 │   ├── __init__.py
 │   ├── base.py                 # 共通インターフェース（AIInterface）
 │   ├── openai_backend.py       # OpenAI用（gpt-4oなど）
-│   └── local_llm_backend.py    # 将来用：ローカルLLM（LLaMA等）
+│   └── llama_backend.py        # llama3 8B(おそらく)
 |
 ├── utils/
 │   ├── memory.py               # 会話の保存・読み込み・追記処理 記憶の関数処理

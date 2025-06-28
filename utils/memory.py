@@ -3,10 +3,9 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime
 
-STATE_PATH = "state.json"
-ALL_STATE_PATH = "all_state.json"
-LONG_MEMORY_PATH = "long_memory.json"
-USER_PROFILE_PATH = "user_profile.json"
+STATE_PATH = os.path.join("talk_memory", "state.json")
+USER_MEMORY_PATH = os.path.join("talk_memory", "user_memory.json")
+USER_PROFILE_PATH = os.path.join("user_memory", "user_profile.json")
 
 # ディレクトリ設定
 today_str = datetime.now().strftime("%Y-%m-%d")
@@ -85,8 +84,8 @@ def recursive_merge_dict(a, b):
 
 # long_memory をマージ
 def merge_long_memory(new_data: dict):
-    if os.path.exists(LONG_MEMORY_PATH):
-        with open(LONG_MEMORY_PATH, "r", encoding="utf-8") as f:
+    if os.path.exists(USER_MEMORY_PATH):
+        with open(USER_MEMORY_PATH, "r", encoding="utf-8") as f:
             existing = json.load(f)
     else:
         existing = {}
@@ -148,7 +147,7 @@ def merge_long_memory(new_data: dict):
         else:
             existing[key] = value  # 初登場のキーはそのまま追加
 
-    with open(LONG_MEMORY_PATH, "w", encoding="utf-8") as f:
+    with open(USER_MEMORY_PATH, "w", encoding="utf-8") as f:
         json.dump(existing, f, ensure_ascii=False, indent=2)
 
     print("✅ long_memory.json にマージして更新しました")
@@ -233,12 +232,12 @@ Markdown の囲い（```）も禁止です。
 # ✅ long_memory.json から user_profile.json を整理・変換して保存する関数
 def refine_user_profile(ai):
     import os
-    if not os.path.exists(LONG_MEMORY_PATH) or os.path.getsize(LONG_MEMORY_PATH) == 0:
+    if not os.path.exists(USER_MEMORY_PATH) or os.path.getsize(USER_MEMORY_PATH) == 0:
         print("⚠️ long_memory.json が存在しないか空です。user_profile へのコピーをスキップします。")
         return
 
     try:
-        with open(LONG_MEMORY_PATH, "r", encoding="utf-8") as f:
+        with open(USER_MEMORY_PATH, "r", encoding="utf-8") as f:
             memory = json.load(f)
     except json.JSONDecodeError:
         print("⚠️ long_memory.json の読み込みに失敗しました（形式エラー）。コピーをスキップします。")
@@ -279,7 +278,7 @@ def refine_user_profile(ai):
         json.dump(memory, f, ensure_ascii=False, indent=2)
         print("✅ user_profile.json に整理・コピーしました")
 
-    with open(LONG_MEMORY_PATH, "w", encoding="utf-8") as f:
+    with open(USER_MEMORY_PATH, "w", encoding="utf-8") as f:
         json.dump({}, f, ensure_ascii=False, indent=2)
         print("🧹 long_memory.json を初期化しました")
 

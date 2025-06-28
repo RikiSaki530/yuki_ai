@@ -1,12 +1,9 @@
 .env
-long_memory.json
-state.json
-all_state.json
+talk_memory/
 days_log/
 episode_memory.json
-user_fixed_profile.json
-user_profile.json
-yuki_personality.json
+user_memory/
+Yuki_memroy/
 .DS_Store
 Yuki_ai/
 設計図/

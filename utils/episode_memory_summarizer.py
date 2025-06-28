@@ -104,7 +104,8 @@ def summarize_state_to_episode_memory( ai):
 - 情報が不明な場合は空欄（""）または null にしてください。推測で埋めないでください。
 - 「タグ」は最大4つまで、短く具体的な単語で記述してください。
 -「記憶の種類」は好み・癒し・苦手・夢など、内容に応じた意味的なカテゴリを自由に記述してください（最大3つまで）。
-- 出力形式は、必ずリスト（[]）で返してください。エピソードが1件の場合でもリストで囲んでください。
+- 会話のログがなければ、空のテンプレートを返してください。
+
 会話ログ：
 {history}
 """.format(template=template , sample=sample ,  history=history)
@@ -118,15 +119,30 @@ def summarize_state_to_episode_memory( ai):
 
     try:
         memory_data = json.loads(result)  # 生成された記憶のデータ（辞書型など）
-        
-        # ファイルに保存
+
+        # 既存の記憶を読み込み（なければ空リスト）
+        if os.path.exists(EPISODE_MEMORY_PATH):
+            with open(EPISODE_MEMORY_PATH, "r", encoding="utf-8") as f:
+                try:
+                    existing = json.load(f)
+                    if not isinstance(existing, list):
+                        existing = []
+                except json.JSONDecodeError:
+                    existing = []
+        else:
+            existing = []
+
+        # 新しいデータを追加
+        existing.append(memory_data)
+
+        # 上書き保存（全エピソード含むリストとして）
         with open(EPISODE_MEMORY_PATH, "w", encoding="utf-8") as f:
-            json.dump(memory_data, f, ensure_ascii=False, indent=2)
-        
-        print("✅ episode_memory.json に記憶を保存しました")
-            
+            json.dump(existing, f, ensure_ascii=False, indent=2)
+
+        print("✅ episode_memory.json に記憶を追加しました")
+
     except Exception as e:
-        print("⚠️ JSON変換に失敗しました:", e)
+        print("⚠️ JSON変換または保存に失敗しました:", e)
         print("返答:", result)
 
 if __name__ == "__main__":
@@ -134,4 +150,6 @@ if __name__ == "__main__":
     sys.path.append(os.path.abspath(os.path.join(BASE_DIR, "..")))
 
     from yuki_chat import ai  # 必要に応じて変更
+    
     summarize_state_to_episode_memory(ai)
+    #create_daily_json_file()  # 日ごとの状態を保存する関数を呼び出し

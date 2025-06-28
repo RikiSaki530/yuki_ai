@@ -3,7 +3,8 @@ import os
 import json
 import unicodedata
 from datetime import datetime
-from ai_backends.openai_backend import OpenAIBackend
+from ai_backends.openai_backend import OpenAIBackend # OpenAI用バックエンド
+from ai_backends.llama_backend import LlamaBackend 
 from ai_backends.base import AIInterface  # ← 型として使うならOK
 from utils.memory import (
     load_state,
@@ -13,21 +14,35 @@ from utils.memory import (
     refine_user_profile,
 )
 
+#Yukiちゃんの情報の呼び出し
+YUKI_PERSONALITY_PATH = os.path.join("Yuki_memory", "yuki_personality.json")
+
+#user情報の呼び出し
+USER_FIXED_PROFILE_PATH = os.path.join("user_memory", "user_fixed_profile.json")
+USER_PROFILE_PATH = os.path.join("user_memory", "user_profile.json")
+
+#会話用のjsonファイルの呼び出し
+STATE_PATH = os.path.join("talk_memory", "state.json")
+USER_MEMORY_PATH = os.path.join("talk_memory", "user_memory.json")
+
 
 # 環境変数の読み込み
 load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
 
 # OpenAI用バックエンド（統一インターフェース）
-# ここを変更したら使用するAIを変えられる
+
+api_key = os.getenv("OPENAI_API_KEY")
 ai = OpenAIBackend(api_key=api_key, model="gpt-4o")
 
+# Llama用バックエンド（統一インターフェース）
+#ai = LlamaBackend(model="llama3")
+
 # 雪ちゃんの基本人格（変更されないので最初に一度だけ読み込む）
-with open("yuki_personality.json", "r", encoding="utf-8") as f:
+with open(YUKI_PERSONALITY_PATH, "r", encoding="utf-8") as f:
     yuki_data = json.load(f)
 
-# ユーザーの固定プロフィール（マスターの情報）
-with open("user_fixed_profile.json", "r", encoding="utf-8") as f:
+#ユーザの固定プロフィールの読み込み
+with open(USER_FIXED_PROFILE_PATH, "r", encoding="utf-8") as f:
     user_fixed_profile = json.load(f)
 
 #　時間を渡す
@@ -59,15 +74,13 @@ def build_userfixed_profile():
 """.strip()
 
 def build_long_term_prompt():
-    import os
-    import json
 
     # ファイルが存在しない or 空なら空の dict を使う
-    if not os.path.exists("user_profile.json") or os.path.getsize("user_profile.json") == 0:
+    if not os.path.exists(USER_PROFILE_PATH) or os.path.getsize(USER_PROFILE_PATH) == 0:
         print("⚠️ user_profile.json が空か存在しません。空の記憶で進行します。")
         mem = {}
     else:
-        with open("user_profile.json", "r", encoding="utf-8") as f:
+        with open(USER_PROFILE_PATH, "r", encoding="utf-8") as f:
             try:
                 mem = json.load(f)
             except json.JSONDecodeError:
@@ -75,7 +88,7 @@ def build_long_term_prompt():
                 mem = {}
 
     # 🔁 long_memory.json に同期コピー
-    with open("long_memory.json", "w", encoding="utf-8") as f:
+    with open(USER_MEMORY_PATH, "w", encoding="utf-8") as f:
         json.dump(mem, f, ensure_ascii=False, indent=2)
 
     # 表示用に整形
