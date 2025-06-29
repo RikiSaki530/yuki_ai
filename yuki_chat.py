@@ -6,6 +6,8 @@ from datetime import datetime
 from ai_backends.openai_backend import OpenAIBackend # OpenAI用バックエンド
 from ai_backends.llama_backend import LlamaBackend 
 from ai_backends.base import AIInterface  # ← 型として使うならOK
+from interaction.self_talker import SelfTalker
+
 from utils.memory import (
     load_state,
     save_state,
@@ -128,10 +130,16 @@ def main():
     state.setdefault("memory", [])
     conversation_count = 0
     episode_memory_prompt = ""
+    talker = SelfTalker(timeout=20)  # 追加
+    talker.start_timer()   
+
 
     try:
         while True:
+
             user_input = input("あなた: ")
+            talker.reset_timer()
+
             if normalize(user_input) in map(normalize, exit_words):
                 print("雪: また話そうね。おつかれさまっ♪")
                 break
@@ -161,6 +169,7 @@ def main():
         print("\n雪: ばいばい…")
 
     finally:
+        talker.stop()  # ★追加：タイマー停止（スレッド終了）
         # 短期記憶の保存（exit直前の入力や応答）
         save_state(state)
 

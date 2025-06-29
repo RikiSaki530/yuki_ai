@@ -16,9 +16,11 @@ ai_yuki/
 │   └── llama_backend.py        # llama3 8B(おそらく)
 |
 ├── utils/
-│   ├── memory.py               # 会話の保存・読み込み・追記処理 記憶の関数処理
+│   ├── memory.py               # 会話の保存・読み込み・追記処理 記憶の関数処理 記憶の処理系統に限定する
 │   ├── epusode_memory_summarizer.py    #一日一回自動で記憶を整理する感じ。エピソード記憶
 │   └── text_tools.py           # normalizeなどの文字列ユーティリティ
+|
+├── interaction/                #対話インスタラクション
 |
 ├── prompts/
 │   ├── prompt_builder.py       # プロンプト構築（人格・記憶の結合）
@@ -29,7 +31,10 @@ ai_yuki/
 └── README.md                   # このファイル ローカルかつ整理したい情報を載せる
 └── yuki.md                     #目標や現在の状況,今後の進展などはこっち
 └── 設計図/                      # PDF/Xmind等が入っている
+└── noteサムネイル                #note用のサムネイル
 └── Yuki_ai/                    #Uniteyのデータが入っている。 
+
+
 
 #人間の記憶構造
 記憶
