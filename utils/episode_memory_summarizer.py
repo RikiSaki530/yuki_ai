@@ -3,16 +3,21 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime
 
+'''
+このコードで,1日の会話履歴→エピソード記憶になる。
+現状はllama3での運用は厳しそうなので、OpenAIのAPIを使っている。
+プロンプトを調整すれば,llama3でも動くかも。
+'''
 # ディレクトリ設定
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # このファイルのある場所
-LOG_DIR = os.path.join(BASE_DIR, "../days_log")
-EPISODE_MEMORY_PATH = os.path.join(BASE_DIR, "../episode_memory.json")
 
+EPISODE_MEMORY_PATH = os.path.join("user_memory", "episode_memory.json")
 
 today_str = datetime.now().strftime("%Y-%m-%d")
 base_dir = "days_log"
 filename = f"episode_{today_str}.json"
 DAY_STATE_PATH = os.path.join(base_dir, filename)
+
 
 #　時間を渡す
 def build_time_prompt():
@@ -72,19 +77,19 @@ def summarize_state_to_episode_memory( ai):
     }'''
 
     sample = '''{
-  "日付": "2025-06-25",
-  "話題": "星の話",
-  "関係者": ["雪ちゃん"],
-  "場所・状況": "夜、公園でおしゃべりしていた",
-  "会話要約": "星の話をして、ユーザーが星空が好きだと判明した。",
-  "感情": {
-    "ユーザー": "嬉しい",
-    "雪ちゃん": "嬉しい"
-  },
-  "記憶の種類": "好み・癒しに関する記憶（永続）",
-  "タグ": ["星", "癒し", "好み", "感情共有"],
-  "スコア": 3
-}'''
+    "日付": "2025-06-25",
+    "話題": "星の話",
+    "関係者": ["雪ちゃん"],
+    "場所・状況": "夜、公園でおしゃべりしていた",
+    "会話要約": "星の話をして、ユーザーが星空が好きだと判明した。",
+    "感情": {
+        "ユーザー": "嬉しい",
+        "雪ちゃん": "嬉しい"
+    },
+    "記憶の種類": "好み・癒しに関する記憶（永続）",
+    "タグ": ["星", "癒し", "好み", "感情共有"],
+    "スコア": 3
+    }'''
     
 
     prompt = """
@@ -105,6 +110,9 @@ def summarize_state_to_episode_memory( ai):
 - 「タグ」は最大4つまで、短く具体的な単語で記述してください。
 -「記憶の種類」は好み・癒し・苦手・夢など、内容に応じた意味的なカテゴリを自由に記述してください（最大3つまで）。
 - 会話のログがなければ、空のテンプレートを返してください。
+- 出力形式は1つの話題ごとに以下のテンプレートに従ってください。
+- 複数話題があれば、テンプレート構造を繰り返したJSON配列として返してください。
+- また "assistant" ではなく "雪ちゃん" という名前で記述してください。
 
 会話ログ：
 {history}
@@ -133,7 +141,8 @@ def summarize_state_to_episode_memory( ai):
             existing = []
 
         # 新しいデータを追加
-        existing.append(memory_data)
+        for episode in memory_data:
+            existing.append(episode)
 
         # 上書き保存（全エピソード含むリストとして）
         with open(EPISODE_MEMORY_PATH, "w", encoding="utf-8") as f:
@@ -146,10 +155,12 @@ def summarize_state_to_episode_memory( ai):
         print("返答:", result)
 
 if __name__ == "__main__":
+    
     import sys
     sys.path.append(os.path.abspath(os.path.join(BASE_DIR, "..")))
 
     from yuki_chat import ai  # 必要に応じて変更
+
     
     summarize_state_to_episode_memory(ai)
     #create_daily_json_file()  # 日ごとの状態を保存する関数を呼び出し

@@ -14,6 +14,10 @@ from utils.memory import (
     refine_user_profile,
 )
 
+from utils.episode_memory import (
+    pic_episode_memory
+)
+
 #Yukiちゃんの情報の呼び出し
 YUKI_PERSONALITY_PATH = os.path.join("Yuki_memory", "yuki_personality.json")
 
@@ -123,6 +127,7 @@ def main():
     state = load_state()
     state.setdefault("memory", [])
     conversation_count = 0
+    episode_memory_prompt = ""
 
     try:
         while True:
@@ -133,10 +138,16 @@ def main():
 
             add_to_memory(state, "user", user_input)
             conversation_count += 1
+
+            if conversation_count % 3 == 0:
+                # 3ターンごとにエピソード記憶を抽出
+                episode_memory_prompt = pic_episode_memory()
+
+
             if conversation_count % 20 == 0:
                 summarize_state_to_long_memory(state, ai)
 
-            full_prompt = build_time_prompt() + "\n" + build_system_prompt() + "\n" + build_userfixed_profile() + "\n" + build_long_term_prompt()
+            full_prompt = build_time_prompt() + "\n" + build_system_prompt() + "\n" + build_userfixed_profile() + "\n" + build_long_term_prompt() +episode_memory_prompt
             messages = [{"role": "system", "content": full_prompt}] + state["memory"][-20:]
 
             reply = ai.generate(messages)
