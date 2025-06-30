@@ -6,7 +6,7 @@ user_memory/
 Yuki_memory/
 .DS_Store
 Yuki_ai/
-設計図/
+setting/
 requirements.txt
 prompts/
 __pycache__/
