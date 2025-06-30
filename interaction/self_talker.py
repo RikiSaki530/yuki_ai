@@ -2,6 +2,14 @@ import threading
 import time
 import random
 
+from utils.memory import (
+    load_state,
+    save_state,
+    add_to_memory,
+    summarize_state_to_long_memory,
+    refine_user_profile
+)
+
 class SelfTalker:
     def __init__(self, timeout=40):
         self.timeout = timeout
@@ -25,12 +33,14 @@ class SelfTalker:
         ]
         return random.choice(topics)
 
-    def start_timer(self):
+    def start_timer(self , state):
         def timer_loop():
             while self.running:
                 time.sleep(1)
                 if not self.triggered and (time.time() - self.last_input_time > self.timeout):
-                    print(f"\n雪: {self.get_message()}\nあなた: ", end="", flush=True)
+                    reply = self.get_message()
+                    print(f"\n雪: {reply}\nあなた: ", end="", flush=True)
+                    add_to_memory(state, "assistant", reply)  # ← 安全に追加可能
                     self.triggered = True
         threading.Thread(target=timer_loop, daemon=True).start()
 

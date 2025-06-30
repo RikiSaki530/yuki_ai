@@ -8,6 +8,8 @@ from ai_backends.llama_backend import LlamaBackend
 from ai_backends.base import AIInterface  # ← 型として使うならOK
 from interaction.self_talker import SelfTalker
 
+
+from yuki_chat_threaded import run_chat
 from utils.memory import (
     load_state,
     save_state,
@@ -130,10 +132,10 @@ def main():
     state.setdefault("memory", [])
     conversation_count = 0
     episode_memory_prompt = ""
-    talker = SelfTalker(timeout=20)  # 追加
-    talker.start_timer()   
+    talker = run_chat(state)  # ← OK！
 
 
+    
     try:
         while True:
 
