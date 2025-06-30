@@ -21,7 +21,7 @@ EPISODE_MEMORY_PATH = os.path.join("user_memory", "episode_memory.json")
 
 # OpenAI用バックエンド（統一インターフェース）
 api_key = os.getenv("OPENAI_API_KEY")
-ai = OpenAIBackend(api_key=api_key, model="gpt-4o")
+ai = OpenAIBackend(api_key=api_key, model="gpt-3.5-turbo")
 
 # 会話履歴を読み込む
 def load_recent_conversation(n):
@@ -97,7 +97,7 @@ def pic_episode_memory():
             print("⚠️ 抽出されたタグがエピソード記憶と一致しませんでした。")
         else:
             print("✅ 抽出されたタグ:", result)
-            print("✅ 抽出されたエピソード記憶:", json.dumps(episode_memory_prompt, ensure_ascii=False, indent=2))
+            
     except json.JSONDecodeError:
         print("⚠️ タグの抽出に失敗しました。JSON形式が正しくありません。")
         episode_memory_prompt = []  
