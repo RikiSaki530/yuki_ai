@@ -16,7 +16,9 @@ EPISODE_MEMORY_PATH = os.path.join("user_memory", "episode_memory.json")
 today_str = datetime.now().strftime("%Y-%m-%d")
 base_dir = "days_log"
 filename = f"episode_{today_str}.json"
-DAY_STATE_PATH = os.path.join(base_dir, filename)
+#DAY_STATE_PATH = os.path.join(base_dir, filename)
+
+DAY_STATE_PATH = os.path.join("days_log" , "episode_2025-06-29.json")
 
 
 #　時間を渡す
