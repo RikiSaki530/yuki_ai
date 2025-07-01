@@ -7,6 +7,7 @@ from ai_backends.openai_backend import OpenAIBackend # OpenAI用バックエン�
 from ai_backends.llama_backend import LlamaBackend 
 from ai_backends.base import AIInterface  # ← 型として使うならOK
 from interaction.self_talker import SelfTalker
+from braina.router import route_context
 
 
 from yuki_chat_threaded import run_chat
@@ -142,6 +143,8 @@ def main():
             user_input = input("あなた: ")
             talker.reset_timer()
 
+            result = route_context(user_input)
+
             if normalize(user_input) in map(normalize, exit_words):
                 print("雪: また話そうね。おつかれさまっ♪")
                 break
@@ -157,7 +160,7 @@ def main():
             if conversation_count % 20 == 0:
                 summarize_state_to_long_memory(state, ai)
 
-            full_prompt = build_time_prompt() + "\n" + build_system_prompt() + "\n" + build_userfixed_profile() + "\n" + build_long_term_prompt() +episode_memory_prompt
+            full_prompt = build_time_prompt() + "\n" + build_system_prompt() + "\n" + build_userfixed_profile() + "\n" + build_long_term_prompt() + result + "\n" +episode_memory_prompt
             messages = [{"role": "system", "content": full_prompt}] + state["memory"][-20:]
 
             reply = ai.generate(messages)

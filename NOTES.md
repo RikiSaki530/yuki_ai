@@ -2,12 +2,19 @@
 
 ai_yuki/
 ├── yuki_chat.py                 # メインスクリプト（会話）
-├── yuki_personality.json       # 雪ちゃんの性格・ルール
-├── state.json                  # 短期記憶（直近の会話）
-├── long_memory.json            # 長期記憶（名前・好み・関係など）曖昧でもいい 会話する際の大事なことだけを覚えておいてほしいかな
-├── user_profile.json           # Snowflake風プロファイル（高精度・定期更新）相手の詳細を調べる ここはデータベースになるのかな？
-├── user_fixed_profile.json     #userの名前や年齢など覚えておいてほしいかつ絶対に忘れないでほしい情報はこっち
-├── episode_memory.json         #エピソード記憶を保存
+├── yuki_chat_threaded.py       # 会話が途切れた際のタイマー管理
+|
+├── Yuki_memory                 # yukiのメモリー系統
+│   └──yuki_personality.json    # 雪ちゃんの性格・ルール
+|
+├── talk_memory                 # 会話のログ保存用
+|   ├──state.json               # 短期記憶（直近の会話）
+|   └──long_memory.json         # 長期記憶（名前・好み・関係など）曖昧でもいい 会話する際の大事なことだけを覚えておいてほしいかな
+├── user_memory                 #userの情報を管理
+│   ├──user_profile.json        # Snowflake風プロファイル（高精度・定期更新）相手の詳細を調べる 
+|   |                           #ここはデータベースになるのかな？
+│   ├── user_fixed_profile.json #userの名前や年齢など覚えておいてほしいかつ絶対に忘れないでほしい情報はこっち
+│   └── episode_memory.json     #エピソード記憶を保存
 |
 ├── ai_backends/                # LLMを切り替えられるようにする層
 │   ├── __init__.py
@@ -17,22 +24,39 @@ ai_yuki/
 |
 ├── utils/
 │   ├── memory.py               # 会話の保存・読み込み・追記処理 記憶の関数処理 記憶の処理系統に限定する
-│   ├── epusode_memory_summarizer.py    #一日一回自動で記憶を整理する感じ。エピソード記憶
-│   └── text_tools.py           # normalizeなどの文字列ユーティリティ
+│   ├── episode_memory_summarizer.py    #一日一回自動で記憶を整理する感じ。エピソード記憶
+│   ├── text_tools.py           # normalizeなどの文字列ユーティリティ
+│   ├── episode_memory.py       #episode_memoryに現在の会話と関連しているものがないかチェックする関数
 |
 ├── interaction/                #対話インスタラクション
+│   └─ self_talker.py           #会話時のタイマーや途切れた際の話題振りなどを関数として管理
+|
+├── mastra_bridge.py
+|
+├── mastra/                     ←★追加
+│   ├── router.py               # 文脈ルーティング（自然文からProviderを選ぶ）
+│   ├── mcp_server.py           # 外部からの呼び出しを受付けるMCP対応サーバー
+│   └── providers/              # 文脈提供者（検索、記憶、天気など）
+│       ├── memory_provider.py      # talk_memory / user_memory を読む
+│       ├── search_provider.py      # Web検索
+│       ├── weather_provider.py     # 天気
+│       ├── file_provider.py        # ローカルファイルアクセス
+│       └── command_provider.py     # shellなど外部処理
 |
 ├── prompts/
 │   ├── prompt_builder.py       # プロンプト構築（人格・記憶の結合）
 │   └── prompt_templates.txt    # フォーマットテンプレート（任意）
 |
+├── days_log                    # 毎日の会話を1日ごとに保存
+|
 ├── .env                        # OpenAI APIキーなど
-└── requirements.txt            # 依存ライブラリ
-└── README.md                   # このファイル ローカルかつ整理したい情報を載せる
-└── yuki.md                     #目標や現在の状況,今後の進展などはこっち
-└── 設計図/                      # PDF/Xmind等が入っている
-└── noteサムネイル                #note用のサムネイル
-└── Yuki_ai/                    #Uniteyのデータが入っている。 
+├── requirements.txt            # 依存ライブラリ
+├── README.md                   #目標や現在の状況,今後の進展などはこっち
+├── NOTES.md                     # このファイル ローカルかつ整理したい情報を載せる
+├── 設計図/                      # PDF/Xmind等が入っている
+├── noteサムネイル/               #note用のサムネイル
+├── Yuki_ai/                    #Uniteyのデータが入っている。 
+└──setting/                     # イラストや情報
 
 
 
