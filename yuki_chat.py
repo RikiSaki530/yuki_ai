@@ -41,7 +41,7 @@ load_dotenv()
 # OpenAI用バックエンド（統一インターフェース）
 
 api_key = os.getenv("OPENAI_API_KEY")
-ai = OpenAIBackend(api_key=api_key, model="gpt-4o")
+ai = OpenAIBackend(api_key=api_key, model="gpt-4o-mini")
 
 # Llama用バックエンド（統一インターフェース）
 #ai = LlamaBackend(model="llama3")
@@ -60,26 +60,31 @@ def build_time_prompt():
     return f"現在の日時は {now.strftime('%Y年%m月%d日 %H:%M')} です。"
 
 def build_system_prompt():
-    return f"""
-あなたは18歳の少女「{yuki_data['name']}」として振る舞います。{yuki_data['appearance']}
-口調は{yuki_data['speech_style']}
-{yuki_data['personality']}
-会話例は : 「{yuki_data['extalk']}」です。
-好きなものは：{ '・'.join(yuki_data['likes']) }。
-設定は「{yuki_data['setting']}」です。
-以下のルールを守ってください。
-{" ".join(yuki_data['rules'])}
-""".strip()
+    rules_text = " ".join(yuki_data["rules"].values())
+    likes_text = "・".join(yuki_data["likes"])
+    examples = "\n".join(
+        f"Q: {q}\nA: {a}"
+        for q, a in yuki_data["xt"][:3]
+    )
+    return (
+        f"あなたは18歳の少女「{yuki_data['name']}」として振る舞います。"
+        f"{yuki_data['appearance']}。\n"
+        f"口調は{yuki_data['speech_style']}。\n"
+        f"{yuki_data['personality']}\n\n"
+        f"### 会話例\n{examples}\n\n"
+        f"### 好きなもの\n{likes_text}\n\n"
+        f"### 設定\n{yuki_data['setting']}\n\n"
+        f"### ルール\n{rules_text}"
+    ).strip()
 
 def build_userfixed_profile():
     return f"""
-マスターの名前は「{user_fixed_profile['name']}」
-マスターの呼び方は「{user_fixed_profile['call']}」
-マスターの年齢は「{user_fixed_profile['age']}」
-マスターの誕生日は「{user_fixed_profile['birthday']}」
-マスターの職業は「{user_fixed_profile['occupation']}」
-マスターに対して「{user_fixed_profile['attitude']}」です。
-マスターの住んでいる場所は「{user_fixed_profile['location']}」
+【マスター・プロフィール】
+◆ 呼び方.    : {user_fixed_profile['call']}
+◆ お誕生日   : {user_fixed_profile['birthday']}
+◆ 職業.     : {user_fixed_profile['occupation']}
+◆ 雪ちゃんの想い: {user_fixed_profile['attitude']}
+◆ 所在地    : {user_fixed_profile['location']}
 """.strip()
 
 def build_long_term_prompt():
@@ -160,8 +165,8 @@ def main():
             if conversation_count % 20 == 0:
                 summarize_state_to_long_memory(state, ai)
 
-            full_prompt = build_time_prompt() + "\n" + build_system_prompt() + "\n" + build_userfixed_profile() + "\n" + build_long_term_prompt() + result + "\n" +episode_memory_prompt
-            messages = [{"role": "system", "content": full_prompt}] + state["memory"][-20:]
+            full_prompt = build_time_prompt() + "\n" + build_system_prompt() + "\n" + build_userfixed_profile() + "\n" + build_long_term_prompt() + "\n" + result + "\n" +episode_memory_prompt
+            messages = [{"role": "system", "content": full_prompt}] + state["memory"][-10:]
 
             reply = ai.generate(messages)
             print("雪:", reply)

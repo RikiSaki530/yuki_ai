@@ -33,15 +33,17 @@ ai_yuki/
 |
 ├── mastra_bridge.py
 |
-├── mastra/                     ←★追加
+├── braina/                     ←★追加
 │   ├── router.py               # 文脈ルーティング（自然文からProviderを選ぶ）
+|   ├── intent_classifier.py    # 意図分類ロジック（辞書・LLM・ML対応可）
+|   ├── slot_extractor.py       # 場所・日付などのパラメータ抽出
+|   ├── mcp_server.py           # MCP対応サーバー（API化 or 外部受付）
 │   ├── mcp_server.py           # 外部からの呼び出しを受付けるMCP対応サーバー
-│   └── providers/              # 文脈提供者（検索、記憶、天気など）
-│       ├── memory_provider.py      # talk_memory / user_memory を読む
-│       ├── search_provider.py      # Web検索
-│       ├── weather_provider.py     # 天気
-│       ├── file_provider.py        # ローカルファイルアクセス
-│       └── command_provider.py     # shellなど外部処理
+│   └── tools                   # 文脈提供者（検索、記憶、天気など）
+│       ├── search_tool.py      # Web検索
+│       ├── weather_tool.py     # 天気
+│       ├── 
+│       └── 
 |
 ├── prompts/
 │   ├── prompt_builder.py       # プロンプト構築（人格・記憶の結合）
