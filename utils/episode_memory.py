@@ -20,6 +20,7 @@ EPISODE_MEMORY_PATH = os.path.join("user_memory", "episode_memory.json")
 #ai = LlamaBackend(model="llama3")
 
 # OpenAI用バックエンド（統一インターフェース）
+load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 ai = OpenAIBackend(api_key=api_key, model="gpt-3.5-turbo")
 
@@ -108,7 +109,7 @@ def pic_episode_memory():
             f"＜記憶＞ {ep.get('会話要約', '')}（タグ: {', '.join(ep.get('タグ', []))}）"
             for ep in episode_memory_prompt
         )
-        return memory_text
+        return json.dumps({"episode": memory_text}, ensure_ascii=False)
     else:
         return ""
         
