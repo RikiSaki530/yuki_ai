@@ -7,16 +7,22 @@ from ai_backends.openai_backend import OpenAIBackend # OpenAI用バックエン�
 from ai_backends.llama_backend import LlamaBackend 
 from ai_backends.base import AIInterface  # ← 型として使うならOK
 from interaction.self_talker import SelfTalker
-from braina.router import route_context
+#from braina.router import route_context
+
 
 
 from yuki_chat_threaded import run_chat
+
+from utils.vector_memory import (
+    auto_extract_relevant_memories
+)
+
+
 from utils.memory import (
     load_state,
     save_state,
     add_to_memory,
-    summarize_state_to_long_memory,
-    refine_user_profile,
+    summarize_state_to_chroma,
 )
 
 from utils.episode_memory import (
@@ -87,44 +93,6 @@ def build_userfixed_profile():
 ◆ 所在地    : {user_fixed_profile['location']}
 """.strip()
 
-def build_long_term_prompt():
-
-    # ファイルが存在しない or 空なら空の dict を使う
-    if not os.path.exists(USER_PROFILE_PATH) or os.path.getsize(USER_PROFILE_PATH) == 0:
-        print("⚠️ user_profile.json が空か存在しません。空の記憶で進行します。")
-        mem = {}
-    else:
-        with open(USER_PROFILE_PATH, "r", encoding="utf-8") as f:
-            try:
-                mem = json.load(f)
-            except json.JSONDecodeError:
-                print("⚠️ user_profile.json の読み込みに失敗しました（形式が壊れている可能性）")
-                mem = {}
-
-    # 🔁 long_memory.json に同期コピー
-    with open(USER_MEMORY_PATH, "w", encoding="utf-8") as f:
-        json.dump(mem, f, ensure_ascii=False, indent=2)
-
-    # 表示用に整形
-    lines = []
-
-    for key, value in mem.items():
-        if isinstance(value, list):
-            if all(isinstance(v, dict) and "value" in v for v in value):
-                joined = "・".join(v["value"] for v in value)
-            else:
-                joined = "・".join(map(str, value))
-            lines.append(f"{key}：{joined}")
-        elif isinstance(value, dict):
-            sub_lines = [f"{key}："]
-            for sub_key, sub_value in value.items():
-                sub_lines.append(f"  {sub_key}: {sub_value}")
-            lines.extend(sub_lines)
-        else:
-            lines.append(f"{key}：{value}")
-
-    return "以下はユーザーに関する長期記憶です：\n" + "\n".join(lines)
-
 
 #文字を判断
 def normalize(text):
@@ -138,6 +106,7 @@ def main():
     state.setdefault("memory", [])
     conversation_count = 0
     episode_memory_prompt = ""
+    long_memory = ""
     talker = run_chat(state)  # ← OK！
 
 
@@ -148,7 +117,7 @@ def main():
             user_input = input("あなた: ")
             talker.reset_timer()
 
-            result = route_context(user_input)
+            #result = route_context(user_input)
 
             if normalize(user_input) in map(normalize, exit_words):
                 print("雪: また話そうね。おつかれさまっ♪")
@@ -160,12 +129,14 @@ def main():
             if conversation_count % 3 == 0:
                 # 3ターンごとにエピソード記憶を抽出
                 episode_memory_prompt = pic_episode_memory()
+                long_memory = auto_extract_relevant_memories()
+
 
 
             if conversation_count % 20 == 0:
-                summarize_state_to_long_memory(state, ai)
+                summarize_state_to_chroma(ai)
 
-            full_prompt = build_time_prompt() + "\n" + build_system_prompt() + "\n" + build_userfixed_profile() + "\n" + build_long_term_prompt() + "\n" + result + "\n" +episode_memory_prompt
+            full_prompt = build_time_prompt() + "\n" + build_system_prompt() + "\n" + build_userfixed_profile() + "\n" +  long_memory + "\n" + episode_memory_prompt  #+ "\n" + result
             messages = [{"role": "system", "content": full_prompt}] + state["memory"][-10:]
 
             reply = ai.generate(messages)
@@ -183,11 +154,6 @@ def main():
         # 短期記憶の保存（exit直前の入力や応答）
         save_state(state)
 
-        # 長期記憶に要約を反映
-        summarize_state_to_long_memory(state, ai)
-
-        # 長期記憶ファイルの内容を user_profile に反映
-        refine_user_profile(ai)
 
 
 

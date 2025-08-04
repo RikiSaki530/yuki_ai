@@ -14,3 +14,10 @@ class OpenAIBackend(AIInterface):
             messages=messages
         )
         return response.choices[0].message.content
+
+    def embedding(self, input: str, model: str = "text-embedding-3-small"):
+        response = self.client.embeddings.create(
+            input=input,
+            model=model
+        )
+        return response.data[0].embedding

@@ -27,6 +27,7 @@ ai_yuki/
 │   ├── episode_memory_summarizer.py    #一日一回自動で記憶を整理する感じ。エピソード記憶
 │   ├── text_tools.py           # normalizeなどの文字列ユーティリティ
 │   ├── episode_memory.py       #episode_memoryに現在の会話と関連しているものがないかチェックする関数
+│   └─ vector_memory.py         #記憶をベクトル化して保存(今後上のやつ消すかも)
 |
 ├── interaction/                #対話インスタラクション
 │   └─ self_talker.py           #会話時のタイマーや途切れた際の話題振りなどを関数として管理
@@ -38,7 +39,6 @@ ai_yuki/
 |   ├── intent_classifier.py    # 意図分類ロジック（辞書・LLM・ML対応可）
 |   ├── slot_extractor.py       # 場所・日付などのパラメータ抽出
 |   ├── mcp_server.py           # MCP対応サーバー（API化 or 外部受付）
-│   ├── mcp_server.py           # 外部からの呼び出しを受付けるMCP対応サーバー
 │   └── tools                   # 文脈提供者（検索、記憶、天気など）
 │       ├── search_tool.py      # Web検索
 │       ├── weather_tool.py     # 天気
